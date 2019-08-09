@@ -411,6 +411,35 @@ namespace prmToolkit.NotificationPattern
 
             return this;
         }
+        
+        /// <summary>
+        /// Dada uma string, adicione uma notificação se não for igual a algum elemento da lista
+        /// </summary>
+        /// <param name="selector">Nome da propriedade que deseja testar</param>
+        /// <param name="val">Value to be compared</param>
+        /// <param name="message">Mensagem de erro (Opcional)</param>
+        /// <returns>Dada uma string, adicione uma notificação se não for igual a algum elemento da lista</returns>
+        public AddNotifications<T> IfNotAreEquals(Expression<Func<T, string>> selector, string[] texts, string message = "")
+        {
+            var val = selector.Compile().Invoke(_notifiableObject);
+            var name = ((MemberExpression)selector.Body).Member.Name;
+            bool isEquals = false;
+            string _text = "";
+
+            foreach (var text in texts)
+                if (val.Equals(text, StringComparison.OrdinalIgnoreCase))
+                {
+                    isEquals = true;
+                    continue;
+                }
+                else
+                    _text += text + ",";
+
+            if (!isEquals)
+                _notifiableObject.AddNotification(name, string.IsNullOrEmpty(message) ? Message.IfNotAreEquals.ToFormat(name, _text.Substring(0, _text.Length - 1)) : message);
+
+            return this;
+        }
         /// <summary>
         /// Dada uma string, adicione uma notificação se for igual a
         /// </summary>
